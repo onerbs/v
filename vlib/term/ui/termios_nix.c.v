@@ -87,7 +87,7 @@ fn (mut ctx Context) termios_setup() ? {
 	}
 
 	if ctx.cfg.window_title != '' {
-		print('\x1b]0;$ctx.cfg.window_title\x07')
+		print('\e]0;$ctx.cfg.window_title\a')
 	}
 
 	if !ctx.cfg.skip_init_checks {
@@ -116,12 +116,12 @@ fn (mut ctx Context) termios_setup() ? {
 	termios.c_cc[C.VMIN] = 0
 	C.tcsetattr(C.STDIN_FILENO, C.TCSAFLUSH, &termios)
 	// enable mouse input
-	print('\x1b[?1003h\x1b[?1006h')
+	print('\e[?1003h\e[?1006h')
 	if ctx.cfg.use_alternate_buffer {
 		// switch to the alternate buffer
-		print('\x1b[?1049h')
+		print('\e[?1049h')
 		// clear the terminal and set the cursor to the origin
-		print('\x1b[2J\x1b[3J\x1b[1;1H')
+		print('\e[2J\e[3J\e[1;1H')
 	}
 	ctx.window_height, ctx.window_width = get_terminal_size()
 
@@ -170,7 +170,7 @@ fn (mut ctx Context) termios_setup() ? {
 }
 
 fn get_cursor_position() (int, int) {
-	print('\033[6n')
+	print('\e[6n')
 	mut s := ''
 	unsafe {
 		buf := malloc(25)
@@ -191,9 +191,9 @@ fn supports_truecolor() bool {
 		return true
 	}
 	// set the bg color to some arbirtrary value (#010203), assumed not to be the default
-	print('\x1b[48:2:1:2:3m')
+	print('\e[48:2:1:2:3m')
 	// andquery the current color
-	print('\x1bP\$qm\x1b\\')
+	print('\eP\$qm\e\\')
 	mut s := ''
 	unsafe {
 		buf := malloc(25)
@@ -207,10 +207,10 @@ fn supports_truecolor() bool {
 fn termios_reset() {
 	// C.TCSANOW ??
 	C.tcsetattr(C.STDIN_FILENO, C.TCSAFLUSH, &ui.termios_at_startup)
-	print('\x1b[?1003l\x1b[?1006l\x1b[?25h')
+	print('\e[?1003l\e[?1006l\e[?25h')
 	c := ctx_ptr
 	if c != 0 && c.cfg.use_alternate_buffer {
-		print('\x1b[?1049l')
+		print('\e[?1049l')
 	}
 	os.flush()
 }
@@ -262,7 +262,7 @@ fn (mut ctx Context) parse_events() {
 			ctx.shift(1)
 		}
 		mut event := &Event(0)
-		if ctx.read_buf[0] == 0x1b {
+		if ctx.read_buf[0] == `\e` {
 			e, len := escape_sequence(ctx.read_buf.bytestr())
 			event = e
 			ctx.shift(len)
@@ -336,7 +336,7 @@ fn escape_end(buf string) int {
 			}
 			return i + 1
 			// escape hatch to avoid potential issues/crashes, although ideally this should never eval to true
-		} else if buf[i + 1] == 0x1b {
+		} else if buf[i + 1] == `\e` {
 			return i + 1
 		}
 		i++

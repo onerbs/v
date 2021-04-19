@@ -24,8 +24,8 @@ fn restore_terminal_state() {
 	if ui.ctx_ptr != 0 {
 		if ui.ctx_ptr.cfg.use_alternate_buffer {
 			// clear the terminal and set the cursor to the origin
-			print('\x1b[2J\x1b[3J')
-			print('\x1b[?1049l')
+			print('\e[2J\e[3J')
+			print('\e[?1049l')
 		}
 		C.SetConsoleMode(ui.ctx_ptr.stdin_handle, ui.stdin_at_startup)
 	}
@@ -62,9 +62,9 @@ pub fn init(cfg Config) &Context {
 
 	if ctx.cfg.use_alternate_buffer {
 		// switch to the alternate buffer
-		print('\x1b[?1049h')
+		print('\e[?1049h')
 		// clear the terminal and set the cursor to the origin
-		print('\x1b[2J\x1b[3J\x1b[1;1H')
+		print('\e[2J\e[3J\e[1;1H')
 	}
 
 	if ctx.cfg.hide_cursor {
@@ -73,7 +73,7 @@ pub fn init(cfg Config) &Context {
 	}
 
 	if ctx.cfg.window_title != '' {
-		print('\x1b]0;$ctx.cfg.window_title\x07')
+		print('\e]0;$ctx.cfg.window_title\a')
 	}
 
 	unsafe {
@@ -316,11 +316,11 @@ fn (mut ctx Context) parse_events() {
 [inline]
 fn save_title() {
 	// restore the previously saved terminal title
-	print('\x1b[22;0t')
+	print('\e[22;0t')
 }
 
 [inline]
 fn load_title() {
 	// restore the previously saved terminal title
-	print('\x1b[23;0t')
+	print('\e[23;0t')
 }

@@ -29,14 +29,14 @@ pub fn init(cfg Config) &Context {
 
 [inline]
 fn save_title() {
-	// restore the previously saved terminal title
-	print('\x1b[22;0t')
+    // restore the previously saved terminal title
+    print('\e[22;0t')
 }
 
 [inline]
 fn load_title() {
-	// restore the previously saved terminal title
-	print('\x1b[23;0t')
+    // restore the previously saved terminal title
+    print('\e[23;0t')
 }
 
 pub fn (mut ctx Context) run() ? {

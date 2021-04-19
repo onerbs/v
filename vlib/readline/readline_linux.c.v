@@ -325,7 +325,7 @@ fn shift_cursor(xpos int, yoffset int) {
 		}
 	}
 	// Absolute X position
-	print('\x1b[${xpos + 1}G')
+	print('\e[${xpos + 1}G')
 }
 
 // calculate_screen_position returns a position `[x, y]int` based on various terminal attributes.

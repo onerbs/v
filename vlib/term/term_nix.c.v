@@ -40,7 +40,7 @@ pub fn get_cursor_position() Coord {
 		oldsettings = os.Result{}
 	}
 	os.system('stty -echo -icanon time 0')
-	print('\033[6n')
+	print('\e[6n')
 	mut ch := int(0)
 	mut i := 0
 	// ESC [ YYY `;` XXX `R`
@@ -92,14 +92,11 @@ pub fn set_terminal_title(title string) bool {
 	if os.is_atty(1) <= 0 || os.getenv('TERM') == 'dumb' {
 		return true
 	}
-	print('\033]0')
-	print(title)
-	print('\007')
+	print('\e]0;${title}\a')
 	return true
 }
 
 // clear clears current terminal screen.
 pub fn clear() {
-	print('\x1b[2J')
-	print('\x1b[H')
+	print('\e[2J\e[H')
 }

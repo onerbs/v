@@ -19,8 +19,8 @@ pub fn (c Color) hex() string {
 // Synchronized Updates spec, designed to avoid tearing during renders
 // https://gitlab.com/gnachman/iterm2/-/wikis/synchronized-updates-spec
 const (
-	bsu = '\x1bP=1s\x1b\\'
-	esu = '\x1bP=2s\x1b\\'
+	bsu = '\eP=1s\e\\'
+	esu = '\eP=2s\e\\'
 )
 
 // write puts the string `s` into the print buffer.
@@ -49,34 +49,34 @@ pub fn (mut ctx Context) flush() {
 // bold sets the character state to bold.
 [inline]
 pub fn (mut ctx Context) bold() {
-	ctx.write('\x1b[1m')
+	ctx.write('\e[1m')
 }
 
 // set_cursor_position positions the cusor at the given coordinates `x`,`y`.
 [inline]
 pub fn (mut ctx Context) set_cursor_position(x int, y int) {
-	ctx.write('\x1b[$y;${x}H')
+	ctx.write('\e[$y;${x}H')
 }
 
 // show_cursor will make the cursor appear if it is not already visible
 [inline]
 pub fn (mut ctx Context) show_cursor() {
-	ctx.write('\x1b[?25h')
+	ctx.write('\e[?25h')
 }
 
 // hide_cursor will make the cursor invisible
 [inline]
 pub fn (mut ctx Context) hide_cursor() {
-	ctx.write('\x1b[?25l')
+	ctx.write('\e[?25l')
 }
 
 // set_color sets the current foreground color used by any succeeding `draw_*` calls.
 [inline]
 pub fn (mut ctx Context) set_color(c Color) {
 	if ctx.enable_rgb {
-		ctx.write('\x1b[38;2;${int(c.r)};${int(c.g)};${int(c.b)}m')
+		ctx.write('\e[38;2;${int(c.r)};${int(c.g)};${int(c.b)}m')
 	} else {
-		ctx.write('\x1b[38;5;${rgb2ansi(c.r, c.g, c.b)}m')
+		ctx.write('\e[38;5;${rgb2ansi(c.r, c.g, c.b)}m')
 	}
 }
 
@@ -84,39 +84,39 @@ pub fn (mut ctx Context) set_color(c Color) {
 [inline]
 pub fn (mut ctx Context) set_bg_color(c Color) {
 	if ctx.enable_rgb {
-		ctx.write('\x1b[48;2;${int(c.r)};${int(c.g)};${int(c.b)}m')
+		ctx.write('\e[48;2;${int(c.r)};${int(c.g)};${int(c.b)}m')
 	} else {
-		ctx.write('\x1b[48;5;${rgb2ansi(c.r, c.g, c.b)}m')
+		ctx.write('\e[48;5;${rgb2ansi(c.r, c.g, c.b)}m')
 	}
 }
 
 // reset_color sets the current foreground color back to it's default value.
 [inline]
 pub fn (mut ctx Context) reset_color() {
-	ctx.write('\x1b[39m')
+	ctx.write('\e[39m')
 }
 
 // reset_bg_color sets the current background color back to it's default value.
 [inline]
 pub fn (mut ctx Context) reset_bg_color() {
-	ctx.write('\x1b[49m')
+	ctx.write('\e[49m')
 }
 
 // reset restores the state of all colors and text formats back to their default values.
 [inline]
 pub fn (mut ctx Context) reset() {
-	ctx.write('\x1b[0m')
+	ctx.write('\e[0m')
 }
 
 [inline]
 pub fn (mut ctx Context) clear() {
-	ctx.write('\x1b[2J\x1b[3J')
+	ctx.write('\e[2J\e[3J')
 }
 
 // set_window_title sets the string `s` as the window title.
 [inline]
 pub fn (mut ctx Context) set_window_title(s string) {
-	print('\x1b]0;$s\x07')
+	print('\e]0;$s\a')
 }
 
 // draw_point draws a point at position `x`,`y`.
